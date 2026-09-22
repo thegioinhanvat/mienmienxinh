@@ -522,7 +522,6 @@
             white-space: pre-line;
         }
 
-        /* ICON CONTACT BADGE */
         .contact-badge {
             display: inline-flex;
             align-items: center;
@@ -691,6 +690,59 @@
         .btn-text-action.liked {
             color: var(--dark-pink);
         }
+
+        /* --- STYLES MỚI CHO TRANG PROFILE TÀI KHOẢN & PASSKEY MODAL --- */
+        .profile-tab-bar {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+            margin: 20px 0 10px 0;
+            border-bottom: 2px solid var(--light-pink);
+            padding-bottom: 12px;
+        }
+
+        .profile-tab-btn {
+            background: var(--card-pink);
+            border: 1px solid var(--border-pink);
+            color: var(--text-dark);
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .profile-tab-btn.active {
+            background: linear-gradient(135deg, #ff8fa3, #ff4d6d);
+            color: white;
+            border-color: transparent;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+        }
+
+        /* MODAL PASSKEY CĂN GIỮA MÀN HÌNH TÔNG HỒNG NHẠT */
+        .passkey-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(4px);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .passkey-box {
+            background: var(--card-pink);
+            border: 2px solid var(--border-pink);
+            width: 90%;
+            max-width: 380px;
+            border-radius: 24px;
+            padding: 25px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(255, 143, 163, 0.3);
+            animation: fadeInDown 0.25s ease;
+        }
     </style>
 </head>
 <body>
@@ -710,23 +762,30 @@
         </div>
     </div>
 
+    <!-- ================= MODAL CĂN GIỮA: NHẬP MẬT KHẨU SỬA/XÓA (TÔNG HỒNG) ================= -->
+    <div id="passkeyModal" class="passkey-overlay">
+        <div class="passkey-box">
+            <div style="font-size: 32px; margin-bottom: 8px;">🔑</div>
+            <h3 id="passkeyTitle" style="color: var(--dark-pink); font-size: 18px; margin-bottom: 8px; font-weight: 800;">Xác Thực Mật Khẩu</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Vui lòng nhập mật khẩu quản lý nhân vật để tiếp tục.</p>
+            
+            <input type="password" id="passkeyInputModal" class="form-control" placeholder="Nhập mật khẩu..." style="text-align: center; font-size: 16px; margin-bottom: 18px; background: white; border-color: var(--primary-pink);">
+            
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-create-main" style="flex: 1; padding: 10px; font-size: 14px; border-radius: 12px;" onclick="submitPasskeyModal()">Xác nhận</button>
+                <button class="btn-text-action" style="flex: 1; justify-content: center; background: white; border: 1px solid var(--border-pink); border-radius: 12px; font-weight: 700;" onclick="closePasskeyModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
     <!-- HEADER & TRANG CHỦ -->
     <header>
         <!-- Icon Tài Khoản Góc Phải Trang Chủ -->
         <div class="user-profile-bar">
-            <div class="key-menu-wrapper">
-                <button class="btn-icon-only" onclick="toggleUserMenu(event)" style="background: var(--card-pink); border: 1px solid var(--border-pink); padding: 8px 14px; border-radius: 25px; gap: 6px;">
-                    <span style="font-size: 16px;">👤</span>
-                    <span id="headerUserName" style="font-size: 13px; font-weight: 700; color: var(--dark-pink);">Tài khoản</span>
-                </button>
-                <div class="key-menu-dropdown" id="userMenuDropdown">
-                    <div style="padding: 12px; border-bottom: 1px solid var(--light-pink); text-align: left;">
-                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">TÊN HIỂN THỊ</div>
-                        <div id="userMenuName" style="font-weight: 700; color: var(--dark-pink); font-size: 14px; word-break: break-all; margin-top: 2px;"></div>
-                    </div>
-                    <div class="key-menu-item" onclick="editUserName()">✏️ Chỉnh sửa tên</div>
-                </div>
-            </div>
+            <button class="btn-icon-only" onclick="openProfileModal()" style="background: var(--card-pink); border: 1px solid var(--border-pink); padding: 8px 16px; border-radius: 25px; gap: 6px;">
+                <span style="font-size: 16px;">👤</span>
+                <span id="headerUserName" style="font-size: 13px; font-weight: 700; color: var(--dark-pink);">Tài khoản</span>
+            </button>
         </div>
 
         <h1>Thế Giới Nhân Vật</h1>
@@ -747,6 +806,38 @@
             <p style="text-align: center; grid-column: 1/-1; color: var(--text-muted);">Đang tải dữ liệu...</p>
         </div>
     </main>
+
+    <!-- ================= FULLSCREEN MODAL: TÀI KHOẢN CÁ NHÂN ================= -->
+    <div id="profileModal" class="fullscreen-modal">
+        <div class="modal-header-bar">
+            <span class="modal-title-text">Trang Cá Nhân</span>
+            <button class="close-fullscreen-btn" onclick="closeProfileModal()">&times;</button>
+        </div>
+
+        <div class="fullscreen-body" style="max-width: 1000px;">
+            <!-- Phần Header Hồ Sơ -->
+            <div class="detail-card" style="text-align: center; background: white;">
+                <div style="font-size: 50px; margin-bottom: 6px;">👤</div>
+                <h2 id="profileUserName" style="font-size: 22px; font-weight: 800; color: var(--dark-pink); margin-bottom: 10px;">Tên Người Dùng</h2>
+                <button class="btn-text-action" style="margin: 0 auto; background: var(--card-pink); border: 1px solid var(--border-pink); padding: 6px 16px; border-radius: 20px; color: var(--dark-pink);" onclick="editUserName()">
+                    ✏️ Chỉnh sửa tên
+                </button>
+            </div>
+
+            <!-- Thanh Chuyển Tab -->
+            <div class="profile-tab-bar">
+                <button class="profile-tab-btn active" id="tabLikedBtn" onclick="switchProfileTab('liked')">
+                    💖 Character đã thích (<span id="profileLikedCount">0</span>)
+                </button>
+                <button class="profile-tab-btn" id="tabCreatedBtn" onclick="switchProfileTab('created')">
+                    ✨ Character đã tạo (<span id="profileCreatedCount">0</span>)
+                </button>
+            </div>
+
+            <!-- Grid Hiển Thị Nhân Vật Trong Profile -->
+            <div class="character-grid" id="profileGrid" style="padding: 10px 0;"></div>
+        </div>
+    </div>
 
     <!-- ================= FULLSCREEN MODAL: TẠO / SỬA NHÂN VẬT ================= -->
     <div id="createModal" class="fullscreen-modal">
@@ -795,7 +886,7 @@
 
                 <div class="form-group">
                     <label>Tên Creator *</label>
-                    <input type="text" id="charAuthor" class="form-control" placeholder="Tên của bạn" required readonly style="background: #edf2f7; cursor: not-allowed;" title="Đổi tên ở mục Tài khoản trên trang chủ">
+                    <input type="text" id="charAuthor" class="form-control" placeholder="Tên của bạn" required readonly style="background: #edf2f7; cursor: not-allowed;" title="Đổi tên ở mục Trang cá nhân">
                 </div>
 
                 <div class="form-group">
@@ -819,9 +910,7 @@
                         <input type="url" id="contactUrlInput" class="form-control" placeholder="https://...">
                         <button type="button" class="btn-add-tag" onclick="addContact()">Thêm</button>
                     </div>
-                    <div class="hashtag-chips-wrapper" id="contactChipsWrapper">
-                        <!-- Danh sách các link liên lạc sẽ hiển thị ở đây -->
-                    </div>
+                    <div class="hashtag-chips-wrapper" id="contactChipsWrapper"></div>
                 </div>
 
                 <!-- Thêm Hashtag dạng Ô -->
@@ -867,8 +956,8 @@
             <div class="key-menu-wrapper">
                 <button class="btn-icon-only" onclick="toggleKeyMenu(event)" style="font-size: 20px;">🔑</button>
                 <div class="key-menu-dropdown" id="keyMenuDropdown">
-                    <div class="key-menu-item" onclick="openEditModal()">✏️ Chỉnh sửa</div>
-                    <div class="key-menu-item" style="color: #ef4444;" onclick="handleDelete()">🗑️ Xóa</div>
+                    <div class="key-menu-item" onclick="promptEditModal()">✏️ Chỉnh sửa</div>
+                    <div class="key-menu-item" style="color: #ef4444;" onclick="promptDeleteChar()">🗑️ Xóa</div>
                 </div>
             </div>
         </div>
@@ -952,7 +1041,7 @@
                 <div class="detail-section-title" style="margin-bottom: 15px;">BÌNH LUẬN</div>
                 
                 <div style="margin-bottom: 20px;">
-                    <input type="text" id="commentAuthorInput" class="form-control" placeholder="Tên hiển thị..." style="margin-bottom: 8px; background: #edf2f7; cursor: not-allowed;" readonly title="Đổi tên ở mục Tài khoản trên trang chủ">
+                    <input type="text" id="commentAuthorInput" class="form-control" placeholder="Tên hiển thị..." style="margin-bottom: 8px; background: #edf2f7; cursor: not-allowed;" readonly title="Đổi tên ở mục Trang cá nhân">
                     <textarea id="commentTextInput" class="form-control" placeholder="Viết bình luận..."></textarea>
                     <button class="btn-create-main" style="margin-top: 10px; padding: 10px 20px; font-size: 14px;" onclick="addComment(null)">Gửi bình luận</button>
                 </div>
@@ -974,6 +1063,9 @@
         let hashtagList = [];
         let contactList = [];
         let selectedFile = null;
+
+        let passkeyAction = null; // 'edit' hoặc 'delete'
+        let currentProfileTab = 'liked';
 
         function showToast(message, type = 'error') {
             const container = document.getElementById('toast-container');
@@ -998,9 +1090,7 @@
             window.onclick = function(e) {
                 if (!e.target.matches('.key-menu-wrapper *')) {
                     const d1 = document.getElementById('keyMenuDropdown');
-                    const d2 = document.getElementById('userMenuDropdown');
                     if (d1) d1.style.display = 'none';
-                    if (d2) d2.style.display = 'none';
                 }
             };
         });
@@ -1029,25 +1119,171 @@
 
         function updateUserUI(name) {
             document.getElementById('headerUserName').innerText = name;
-            document.getElementById('userMenuName').innerText = name;
+            document.getElementById('profileUserName').innerText = name;
             document.getElementById('commentAuthorInput').value = name;
             document.getElementById('charAuthor').value = name;
         }
 
-        function toggleUserMenu(e) {
-            e.stopPropagation();
-            const dropdown = document.getElementById('userMenuDropdown');
-            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
-        }
-
         function editUserName() {
-            document.getElementById('userMenuDropdown').style.display = 'none';
             const oldName = localStorage.getItem('user_nickname') || '';
             const newName = prompt("Nhập Tên hiển thị mới của bạn:", oldName);
             if(newName && newName.trim()) {
                 localStorage.setItem('user_nickname', newName.trim());
                 updateUserUI(newName.trim());
                 showToast("Đã cập nhật tên hiển thị!", "success");
+                if(document.getElementById('profileModal').style.display === 'block') {
+                    renderProfileGrid();
+                }
+            }
+        }
+
+        // QUẢN LÝ PROFILE MODAL (TRANG CÁ NHÂN TOÀN MÀN HÌNH)
+        function openProfileModal() {
+            const name = localStorage.getItem('user_nickname') || 'Tài khoản';
+            updateUserUI(name);
+            document.getElementById('profileModal').style.display = 'block';
+            switchProfileTab('liked');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        function switchProfileTab(tab) {
+            currentProfileTab = tab;
+            document.getElementById('tabLikedBtn').classList.toggle('active', tab === 'liked');
+            document.getElementById('tabCreatedBtn').classList.toggle('active', tab === 'created');
+            renderProfileGrid();
+        }
+
+        function renderProfileGrid() {
+            const userName = localStorage.getItem('user_nickname') || '';
+            const grid = document.getElementById('profileGrid');
+            grid.innerHTML = '';
+
+            // Lấy danh sách đã thích từ LocalStorage
+            const likedChars = allCharacters.filter(c => localStorage.getItem(`liked_${c.id}`) === 'true');
+            // Lấy danh sách đã tạo
+            const createdChars = allCharacters.filter(c => c.author === userName);
+
+            document.getElementById('profileLikedCount').innerText = likedChars.length;
+            document.getElementById('profileCreatedCount').innerText = createdChars.length;
+
+            const targetList = currentProfileTab === 'liked' ? likedChars : createdChars;
+
+            if (targetList.length === 0) {
+                grid.innerHTML = `<p style="text-align: center; grid-column: 1/-1; color: var(--text-muted); padding: 40px 0;">Không có nhân vật nào trong danh mục này.</p>`;
+                return;
+            }
+
+            targetList.forEach(char => {
+                const tagsArr = char.hashtags ? char.hashtags.split(',').filter(t => t.trim()) : [];
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.onclick = () => showDetail(char);
+
+                card.innerHTML = `
+                    <div class="card-img-wrapper">
+                        <img src="${char.avatar_url}" alt="${char.name}">
+                    </div>
+                    <div class="card-body">
+                        <div class="card-title">${char.name}</div>
+                        <div class="card-creator">Creator: ${char.author}</div>
+                        <div class="card-slogan">"${char.slogan}"</div>
+                        <div class="hashtag-container">
+                            ${tagsArr.map(t => `<span class="tag-chip">${t.trim()}</span>`).join('')}
+                        </div>
+                    </div>
+                    <div class="card-stats-bar">
+                        <div class="stat-item" title="Lượt xem">👀 ${char.views || 0}</div>
+                        <div class="stat-item" title="Lượt thích">❤️ ${char.likes || 0}</div>
+                        <div class="stat-item" title="Bình luận">💬 ${char.comments_count || 0}</div>
+                        <div class="stat-item" title="Chia sẻ">🔗 ${char.shares || 0}</div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // QUẢN LÝ PASSKEY MODAL CĂN GIỮA
+        function promptEditModal() {
+            document.getElementById('keyMenuDropdown').style.display = 'none';
+            if(!currentChar) return;
+            passkeyAction = 'edit';
+            document.getElementById('passkeyTitle').innerText = "Chỉnh Sửa Nhân Vật";
+            document.getElementById('passkeyInputModal').value = "";
+            document.getElementById('passkeyModal').style.display = 'flex';
+        }
+
+        function promptDeleteChar() {
+            document.getElementById('keyMenuDropdown').style.display = 'none';
+            if(!currentChar) return;
+            passkeyAction = 'delete';
+            document.getElementById('passkeyTitle').innerText = "Xóa Nhân Vật";
+            document.getElementById('passkeyInputModal').value = "";
+            document.getElementById('passkeyModal').style.display = 'flex';
+        }
+
+        function closePasskeyModal() {
+            document.getElementById('passkeyModal').style.display = 'none';
+        }
+
+        async function submitPasskeyModal() {
+            const inputKey = document.getElementById('passkeyInputModal').value.trim();
+            if(!inputKey) {
+                showToast("Vui lòng nhập mật khẩu!");
+                return;
+            }
+
+            if(inputKey !== currentChar.passkey) {
+                showToast("Mật khẩu không chính xác!");
+                return;
+            }
+
+            closePasskeyModal();
+
+            if(passkeyAction === 'delete') {
+                if(confirm("Bạn có chắc chắn muốn xóa vĩnh viễn nhân vật này?")) {
+                    const { error } = await supabaseClient.from('characters').delete().eq('id', currentChar.id);
+                    if(error) {
+                        showToast("Lỗi xóa: " + error.message);
+                    } else {
+                        showToast("Xóa nhân vật thành công!", "success");
+                        closeDetailModal();
+                        loadCharacters();
+                    }
+                }
+            } else if(passkeyAction === 'edit') {
+                document.getElementById('formTitle').innerText = "Chỉnh Sửa Nhân Vật";
+                document.getElementById('editCharId').value = currentChar.id;
+                document.getElementById('charName').value = currentChar.name;
+                document.getElementById('charGender').value = currentChar.gender;
+                document.getElementById('charPasskey').value = currentChar.passkey;
+                document.getElementById('charSlogan').value = currentChar.slogan;
+                document.getElementById('charAuthor').value = currentChar.author;
+                document.getElementById('charNote').value = currentChar.note || "";
+                document.getElementById('charPlot').value = currentChar.plot;
+                document.getElementById('charIntro').value = currentChar.introduce || "";
+                document.getElementById('charOpening').value = currentChar.opening || "";
+                document.getElementById('charLink').value = currentChar.link;
+
+                const imgPreview = document.getElementById('avatarPreviewImg');
+                imgPreview.src = currentChar.avatar_url;
+                imgPreview.style.display = 'block';
+                document.getElementById('avatarPreviewPlaceholder').style.display = 'none';
+
+                hashtagList = currentChar.hashtags ? currentChar.hashtags.split(',').map(t => t.trim()) : [];
+                renderHashtagChips();
+
+                try {
+                    contactList = currentChar.contacts ? JSON.parse(currentChar.contacts) : [];
+                } catch(e) {
+                    contactList = [];
+                }
+                renderContactChips();
+
+                closeDetailModal();
+                document.getElementById('createModal').style.display = 'block';
             }
         }
 
@@ -1158,7 +1394,7 @@
             const customName = customNameInput.value.trim();
 
             if(!url) {
-                showToast("Vui lòng để lại thông tin liên lạc!");
+                showToast("Vui lòng nhập thông tin liên lạc!");
                 return;
             }
 
@@ -1275,9 +1511,8 @@
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
 
-            // BẮT BUỘC TỐI THIỂU 1 CONTACT
             if(contactList.length === 0) {
-                showToast("Vui lòng thêm ít nhất 1 thông tin liên lạc Creator!");
+                showToast("Vui lòng thêm ít nhất 1 thông tin liên lạc!");
                 return;
             }
 
@@ -1354,7 +1589,6 @@
             document.getElementById('detail-shares').innerText = char.shares || 0;
             document.getElementById('detail-author').innerText = char.author;
 
-            // Render Contacts ở Card thứ 2
             const contactContainer = document.getElementById('detail-contacts');
             contactContainer.innerHTML = '';
             let parsedContacts = [];
@@ -1433,6 +1667,9 @@
             document.getElementById('detail-likes').innerText = currentChar.likes;
             await supabaseClient.from('characters').update({ likes: currentChar.likes }).eq('id', currentChar.id);
             loadCharacters();
+            if(document.getElementById('profileModal').style.display === 'block') {
+                renderProfileGrid();
+            }
         }
 
         function shareCharacter() {
@@ -1458,70 +1695,6 @@
 
         function openCharacterLink() {
             if(currentChar && currentChar.link) window.open(currentChar.link, '_blank');
-        }
-
-        async function handleDelete() {
-            document.getElementById('keyMenuDropdown').style.display = 'none';
-            if(!currentChar) return;
-
-            const inputKey = prompt("Nhập mật khẩu quản lý để xóa nhân vật này:");
-            if(!inputKey) return;
-
-            if(inputKey === currentChar.passkey) {
-                if(confirm("Bạn có chắc chắn muốn xóa vĩnh viễn?")) {
-                    const { error } = await supabaseClient.from('characters').delete().eq('id', currentChar.id);
-                    if(error) showToast("Lỗi xóa: " + error.message);
-                    else {
-                        showToast("Xóa nhân vật thành công!", "success");
-                        closeDetailModal();
-                        loadCharacters();
-                    }
-                }
-            } else {
-                showToast("Mật khẩu không chính xác!");
-            }
-        }
-
-        function openEditModal() {
-            document.getElementById('keyMenuDropdown').style.display = 'none';
-            if(!currentChar) return;
-
-            const inputKey = prompt("Nhập mật khẩu quản lý để chỉnh sửa:");
-            if(inputKey !== currentChar.passkey) {
-                showToast("Mật khẩu không chính xác!");
-                return;
-            }
-
-            document.getElementById('formTitle').innerText = "Chỉnh Sửa Nhân Vật";
-            document.getElementById('editCharId').value = currentChar.id;
-            document.getElementById('charName').value = currentChar.name;
-            document.getElementById('charGender').value = currentChar.gender;
-            document.getElementById('charPasskey').value = currentChar.passkey;
-            document.getElementById('charSlogan').value = currentChar.slogan;
-            document.getElementById('charAuthor').value = currentChar.author;
-            document.getElementById('charNote').value = currentChar.note || "";
-            document.getElementById('charPlot').value = currentChar.plot;
-            document.getElementById('charIntro').value = currentChar.introduce || "";
-            document.getElementById('charOpening').value = currentChar.opening || "";
-            document.getElementById('charLink').value = currentChar.link;
-
-            const imgPreview = document.getElementById('avatarPreviewImg');
-            imgPreview.src = currentChar.avatar_url;
-            imgPreview.style.display = 'block';
-            document.getElementById('avatarPreviewPlaceholder').style.display = 'none';
-
-            hashtagList = currentChar.hashtags ? currentChar.hashtags.split(',').map(t => t.trim()) : [];
-            renderHashtagChips();
-
-            try {
-                contactList = currentChar.contacts ? JSON.parse(currentChar.contacts) : [];
-            } catch(e) {
-                contactList = [];
-            }
-            renderContactChips();
-
-            closeDetailModal();
-            document.getElementById('createModal').style.display = 'block';
         }
 
         // === BÌNH LUẬN & REPLY ===
