@@ -691,7 +691,7 @@
             color: var(--dark-pink);
         }
 
-        /* --- STYLES MỚI CHO TRANG PROFILE TÀI KHOẢN & PASSKEY MODAL --- */
+        /* --- STYLES MỚI CHO TRANG PROFILE TÀI KHOẢN & MODAL NỔI --- */
         .profile-tab-bar {
             display: flex;
             justify-content: center;
@@ -720,7 +720,7 @@
             box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
         }
 
-        /* MODAL PASSKEY CĂN GIỮA MÀN HÌNH TÔNG HỒNG NHẠT */
+        /* MODAL PASSKEY & EDIT NAME CĂN GIỮA MÀN HÌNH TÔNG HỒNG NHẠT */
         .passkey-overlay {
             display: none;
             position: fixed;
@@ -778,12 +778,27 @@
         </div>
     </div>
 
+    <!-- ================= MODAL CĂN GIỮA: CHỈNH SỬA TÊN HIỂN THỊ (TÔNG HỒNG) ================= -->
+    <div id="editNameModal" class="passkey-overlay">
+        <div class="passkey-box">
+            <div style="font-size: 32px; margin-bottom: 8px;">✏️</div>
+            <h3 style="color: var(--dark-pink); font-size: 18px; margin-bottom: 8px; font-weight: 800;">Chỉnh Sửa Tên Hiển Thị</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Nhập tên hiển thị mới của bạn.</p>
+            
+            <input type="text" id="editNameInputModal" class="form-control" placeholder="Nhập tên mới..." style="text-align: center; font-size: 16px; margin-bottom: 18px; background: white; border-color: var(--primary-pink);">
+            
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-create-main" style="flex: 1; padding: 10px; font-size: 14px; border-radius: 12px;" onclick="submitEditNameModal()">Lưu lại</button>
+                <button class="btn-text-action" style="flex: 1; justify-content: center; background: white; border: 1px solid var(--border-pink); border-radius: 12px; font-weight: 700;" onclick="closeEditNameModal()">Hủy</button>
+            </div>
+        </div>
+    </div>
+
     <!-- HEADER & TRANG CHỦ -->
     <header>
-        <!-- Icon Tài Khoản Góc Phải Trang Chủ -->
+        <!-- Tên Tài Khoản Góc Phải Trang Chủ (Chỉ hiện tên, không hiện icon) -->
         <div class="user-profile-bar">
-            <button class="btn-icon-only" onclick="openProfileModal()" style="background: var(--card-pink); border: 1px solid var(--border-pink); padding: 8px 16px; border-radius: 25px; gap: 6px;">
-                <span style="font-size: 16px;">👤</span>
+            <button class="btn-icon-only" onclick="openProfileModal()" style="background: var(--card-pink); border: 1px solid var(--border-pink); padding: 8px 18px; border-radius: 25px;">
                 <span id="headerUserName" style="font-size: 13px; font-weight: 700; color: var(--dark-pink);">Tài khoản</span>
             </button>
         </div>
@@ -815,11 +830,10 @@
         </div>
 
         <div class="fullscreen-body" style="max-width: 1000px;">
-            <!-- Phần Header Hồ Sơ -->
-            <div class="detail-card" style="text-align: center; background: white;">
-                <div style="font-size: 50px; margin-bottom: 6px;">👤</div>
-                <h2 id="profileUserName" style="font-size: 22px; font-weight: 800; color: var(--dark-pink); margin-bottom: 10px;">Tên Người Dùng</h2>
-                <button class="btn-text-action" style="margin: 0 auto; background: var(--card-pink); border: 1px solid var(--border-pink); padding: 6px 16px; border-radius: 20px; color: var(--dark-pink);" onclick="editUserName()">
+            <!-- Phần Header Hồ Sơ (Không hiển thị icon avatar nữa) -->
+            <div class="detail-card" style="text-align: center; background: white; padding: 25px 20px;">
+                <h2 id="profileUserName" style="font-size: 24px; font-weight: 800; color: var(--dark-pink); margin-bottom: 12px;">Tên Người Dùng</h2>
+                <button class="btn-text-action" style="margin: 0 auto; background: var(--card-pink); border: 1px solid var(--border-pink); padding: 8px 20px; border-radius: 20px; color: var(--dark-pink); font-size: 13px;" onclick="editUserName()">
                     ✏️ Chỉnh sửa tên
                 </button>
             </div>
@@ -954,7 +968,8 @@
             <button class="close-fullscreen-btn" onclick="closeDetailModal()">&times;</button>
             
             <div class="key-menu-wrapper">
-                <button class="btn-icon-only" onclick="toggleKeyMenu(event)" style="font-size: 20px;">🔑</button>
+                <!-- Đã đổi icon chìa khóa thành icon ba chấm (⋮) -->
+                <button class="btn-icon-only" onclick="toggleKeyMenu(event)" style="font-size: 24px; font-weight: bold; color: var(--dark-pink); width: 36px; height: 36px;">⋮</button>
                 <div class="key-menu-dropdown" id="keyMenuDropdown">
                     <div class="key-menu-item" onclick="promptEditModal()">✏️ Chỉnh sửa</div>
                     <div class="key-menu-item" style="color: #ef4444;" onclick="promptDeleteChar()">🗑️ Xóa</div>
@@ -1126,14 +1141,26 @@
 
         function editUserName() {
             const oldName = localStorage.getItem('user_nickname') || '';
-            const newName = prompt("Nhập Tên hiển thị mới của bạn:", oldName);
-            if(newName && newName.trim()) {
-                localStorage.setItem('user_nickname', newName.trim());
-                updateUserUI(newName.trim());
-                showToast("Đã cập nhật tên hiển thị!", "success");
-                if(document.getElementById('profileModal').style.display === 'block') {
-                    renderProfileGrid();
-                }
+            document.getElementById('editNameInputModal').value = oldName;
+            document.getElementById('editNameModal').style.display = 'flex';
+        }
+
+        function closeEditNameModal() {
+            document.getElementById('editNameModal').style.display = 'none';
+        }
+
+        function submitEditNameModal() {
+            const newName = document.getElementById('editNameInputModal').value.trim();
+            if(!newName) {
+                showToast("Vui lòng nhập tên!");
+                return;
+            }
+            localStorage.setItem('user_nickname', newName);
+            updateUserUI(newName);
+            closeEditNameModal();
+            showToast("Đã cập nhật tên hiển thị!", "success");
+            if(document.getElementById('profileModal').style.display === 'block') {
+                renderProfileGrid();
             }
         }
 
@@ -1156,14 +1183,56 @@
             renderProfileGrid();
         }
 
+        // HÀM TẠO CARD CHUẨN ĐỒNG BỘ DÙNG CHUNG CHO TRANG CHỦ VÀ PROFILE
+        function createCardElement(char) {
+            const tagsArr = char.hashtags ? char.hashtags.split(',').filter(t => t.trim()) : [];
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => showDetail(char);
+
+            card.innerHTML = `
+                <div class="card-img-wrapper">
+                    <img src="${char.avatar_url}" alt="${char.name}">
+                </div>
+                <div class="card-body">
+                    <div class="card-title">${char.name}</div>
+                    <div class="card-creator">Creator: ${char.author}</div>
+                    <div class="card-slogan">"${char.slogan}"</div>
+                    <div class="hashtag-container">
+                        ${tagsArr.map(t => `<span class="tag-chip">${t.trim()}</span>`).join('')}
+                    </div>
+                </div>
+                <div class="card-stats-bar">
+                    <div class="stat-item" title="Tổng lượt xem">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                        <span>${char.views || 0}</span>
+                    </div>
+                    <div class="stat-item" title="Tổng lượt thích">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                        <span>${char.likes || 0}</span>
+                    </div>
+                    <div class="stat-item" title="Tổng lượt bình luận">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
+                        <span>${char.comments_count || 0}</span>
+                    </div>
+                    <div class="stat-item" title="Tổng lượt chia sẻ">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l6.96-4.11c.52.48 1.2.78 1.96.78 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.33 6.82 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.82 0 1.5-.33 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+                        <span>${char.shares || 0}</span>
+                    </div>
+                    <button class="btn-icon-only" title="Chia sẻ link" onclick="event.stopPropagation(); shareDirect('${char.id}')">
+                        <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l6.96-4.11c.52.48 1.2.78 1.96.78 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.33 6.82 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.82 0 1.5-.33 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+                    </button>
+                </div>
+            `;
+            return card;
+        }
+
         function renderProfileGrid() {
             const userName = localStorage.getItem('user_nickname') || '';
             const grid = document.getElementById('profileGrid');
             grid.innerHTML = '';
 
-            // Lấy danh sách đã thích từ LocalStorage
             const likedChars = allCharacters.filter(c => localStorage.getItem(`liked_${c.id}`) === 'true');
-            // Lấy danh sách đã tạo
             const createdChars = allCharacters.filter(c => c.author === userName);
 
             document.getElementById('profileLikedCount').innerText = likedChars.length;
@@ -1177,31 +1246,7 @@
             }
 
             targetList.forEach(char => {
-                const tagsArr = char.hashtags ? char.hashtags.split(',').filter(t => t.trim()) : [];
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.onclick = () => showDetail(char);
-
-                card.innerHTML = `
-                    <div class="card-img-wrapper">
-                        <img src="${char.avatar_url}" alt="${char.name}">
-                    </div>
-                    <div class="card-body">
-                        <div class="card-title">${char.name}</div>
-                        <div class="card-creator">Creator: ${char.author}</div>
-                        <div class="card-slogan">"${char.slogan}"</div>
-                        <div class="hashtag-container">
-                            ${tagsArr.map(t => `<span class="tag-chip">${t.trim()}</span>`).join('')}
-                        </div>
-                    </div>
-                    <div class="card-stats-bar">
-                        <div class="stat-item" title="Lượt xem">👀 ${char.views || 0}</div>
-                        <div class="stat-item" title="Lượt thích">❤️ ${char.likes || 0}</div>
-                        <div class="stat-item" title="Bình luận">💬 ${char.comments_count || 0}</div>
-                        <div class="stat-item" title="Chia sẻ">🔗 ${char.shares || 0}</div>
-                    </div>
-                `;
-                grid.appendChild(card);
+                grid.appendChild(createCardElement(char));
             });
         }
 
@@ -1322,46 +1367,7 @@
             }
 
             list.forEach(char => {
-                const tagsArr = char.hashtags ? char.hashtags.split(',').filter(t => t.trim()) : [];
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.onclick = () => showDetail(char);
-
-                card.innerHTML = `
-                    <div class="card-img-wrapper">
-                        <img src="${char.avatar_url}" alt="${char.name}">
-                    </div>
-                    <div class="card-body">
-                        <div class="card-title">${char.name}</div>
-                        <div class="card-creator">Creator: ${char.author}</div>
-                        <div class="card-slogan">"${char.slogan}"</div>
-                        <div class="hashtag-container">
-                            ${tagsArr.map(t => `<span class="tag-chip">${t.trim()}</span>`).join('')}
-                        </div>
-                    </div>
-                    <div class="card-stats-bar">
-                        <div class="stat-item" title="Tổng lượt xem">
-                            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                            <span>${char.views || 0}</span>
-                        </div>
-                        <div class="stat-item" title="Tổng lượt thích">
-                            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
-                            <span>${char.likes || 0}</span>
-                        </div>
-                        <div class="stat-item" title="Tổng lượt bình luận">
-                            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
-                            <span>${char.comments_count || 0}</span>
-                        </div>
-                        <div class="stat-item" title="Tổng lượt chia sẻ">
-                            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l6.96-4.11c.52.48 1.2.78 1.96.78 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.33 6.82 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.82 0 1.5-.33 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-                            <span>${char.shares || 0}</span>
-                        </div>
-                        <button class="btn-icon-only" title="Chia sẻ link" onclick="event.stopPropagation(); shareDirect('${char.id}')">
-                            <svg class="icon-svg" viewBox="0 0 24 24"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l6.96-4.11c.52.48 1.2.78 1.96.78 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.33 6.82 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.82 0 1.5-.33 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-                        </button>
-                    </div>
-                `;
-                grid.appendChild(card);
+                grid.appendChild(createCardElement(char));
             });
         }
 
