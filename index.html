@@ -56,7 +56,7 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            z-index: 9999;
+            z-index: 99999;
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -101,6 +101,7 @@
             text-align: center;
             border-bottom: 2px solid var(--light-pink);
             box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+            position: relative;
         }
 
         h1 {
@@ -108,6 +109,12 @@
             font-size: 26px;
             margin-bottom: 15px;
             font-weight: 800;
+        }
+
+        .user-profile-bar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
         }
 
         .search-container {
@@ -153,10 +160,6 @@
         .btn-create-main:hover {
             transform: translateY(-3px) scale(1.02);
             box-shadow: 0 10px 30px rgba(255, 77, 109, 0.5);
-        }
-
-        .btn-create-main:active {
-            transform: translateY(1px);
         }
 
         /* --- GRID CARD NHÂN VẬT --- */
@@ -519,6 +522,27 @@
             white-space: pre-line;
         }
 
+        /* ICON CONTACT BADGE */
+        .contact-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: white;
+            border: 1px solid var(--border-pink);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--dark-pink);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .contact-badge:hover {
+            transform: translateY(-2px);
+            background: var(--light-pink);
+        }
+
         .detail-action-bar {
             display: flex;
             align-items: center;
@@ -591,7 +615,7 @@
             border: 1px solid var(--border-pink);
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            width: 150px;
+            width: 170px;
             overflow: hidden;
             z-index: 100;
         }
@@ -674,8 +698,37 @@
     <!-- TOAST NOTIFICATION CONTAINER -->
     <div id="toast-container"></div>
 
+    <!-- ================= WELCOME MODAL (TRUY CẬP LẦN ĐẦU) ================= -->
+    <div id="welcomeModal" class="fullscreen-modal" style="background: rgba(255, 245, 247, 0.98); z-index: 9999;">
+        <div style="max-width: 420px; margin: 120px auto 0 auto; padding: 30px; background: white; border-radius: 24px; border: 2px solid var(--primary-pink); text-align: center; box-shadow: 0 10px 30px rgba(255, 143, 163, 0.25);">
+            <div style="font-size: 40px; margin-bottom: 10px;">🌸</div>
+            <h2 style="color: var(--dark-pink); font-size: 22px; margin-bottom: 8px;">Chào mừng bạn!</h2>
+            <p style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.5;">Hãy nhập Tên hiển thị của bạn để bắt đầu khám phá và chia sẻ các Character Roleplay nhé.</p>
+            
+            <input type="text" id="welcomeNameInput" class="form-control" placeholder="Nhập tên của bạn..." style="margin-bottom: 16px; text-align: center; font-size: 16px; font-weight: 600;">
+            <button class="btn-create-main" style="width: 100%; border-radius: 12px; padding: 14px;" onclick="saveWelcomeName()">Bắt đầu</button>
+        </div>
+    </div>
+
     <!-- HEADER & TRANG CHỦ -->
     <header>
+        <!-- Icon Tài Khoản Góc Phải Trang Chủ -->
+        <div class="user-profile-bar">
+            <div class="key-menu-wrapper">
+                <button class="btn-icon-only" onclick="toggleUserMenu(event)" style="background: var(--card-pink); border: 1px solid var(--border-pink); padding: 8px 14px; border-radius: 25px; gap: 6px;">
+                    <span style="font-size: 16px;">👤</span>
+                    <span id="headerUserName" style="font-size: 13px; font-weight: 700; color: var(--dark-pink);">Tài khoản</span>
+                </button>
+                <div class="key-menu-dropdown" id="userMenuDropdown">
+                    <div style="padding: 12px; border-bottom: 1px solid var(--light-pink); text-align: left;">
+                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 700;">TÊN HIỂN THỊ</div>
+                        <div id="userMenuName" style="font-weight: 700; color: var(--dark-pink); font-size: 14px; word-break: break-all; margin-top: 2px;"></div>
+                    </div>
+                    <div class="key-menu-item" onclick="editUserName()">✏️ Chỉnh sửa tên</div>
+                </div>
+            </div>
+        </div>
+
         <h1>Thế Giới Nhân Vật</h1>
         
         <!-- Thanh Tìm Kiếm -->
@@ -742,12 +795,33 @@
 
                 <div class="form-group">
                     <label>Tên Creator *</label>
-                    <input type="text" id="charAuthor" class="form-control" placeholder="Tên của bạn" required>
+                    <input type="text" id="charAuthor" class="form-control" placeholder="Tên của bạn" required readonly style="background: #edf2f7; cursor: not-allowed;" title="Đổi tên ở mục Tài khoản trên trang chủ">
                 </div>
 
                 <div class="form-group">
                     <label>Creator Note (Tùy chọn)</label>
                     <input type="text" id="charNote" class="form-control" placeholder="Ghi chú dành cho người chơi">
+                </div>
+
+                <!-- BỔ SUNG: Thông Tin Liên Lạc (Bắt buộc tối thiểu 1) -->
+                <div class="form-group">
+                    <label>Thông tin liên lạc Creator (Bắt buộc ít nhất 1) *</label>
+                    <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                        <select id="contactPlatformSelect" class="form-control" style="width: 140px;" onchange="handlePlatformChange()">
+                            <option value="facebook">Facebook</option>
+                            <option value="twitter">Twitter / X</option>
+                            <option value="discord">Discord</option>
+                            <option value="tiktok">TikTok</option>
+                            <option value="website">Website</option>
+                            <option value="other">Link khác</option>
+                        </select>
+                        <input type="text" id="contactCustomNameInput" class="form-control" placeholder="Tên link (VD: Zalo)" style="display:none; width: 130px;">
+                        <input type="url" id="contactUrlInput" class="form-control" placeholder="https://...">
+                        <button type="button" class="btn-add-tag" onclick="addContact()">Thêm</button>
+                    </div>
+                    <div class="hashtag-chips-wrapper" id="contactChipsWrapper">
+                        <!-- Danh sách các link liên lạc sẽ hiển thị ở đây -->
+                    </div>
                 </div>
 
                 <!-- Thêm Hashtag dạng Ô -->
@@ -824,12 +898,19 @@
                 </div>
             </div>
 
+            <!-- CARD THỨ HAI: CREATOR, CREATOR NOTE, CONTACT THE CREATOR -->
             <div class="detail-card">
                 <div class="detail-section-title">CREATOR</div>
                 <div class="detail-section-content" id="detail-author" style="font-weight: 700;"></div>
-                <div id="detail-note-wrapper" style="margin-top: 8px;">
+                
+                <div id="detail-note-wrapper" style="margin-top: 10px;">
                     <div class="detail-section-title">CREATOR NOTE</div>
                     <div class="detail-section-content" id="detail-note" style="font-style: italic; color: var(--text-muted);"></div>
+                </div>
+
+                <div style="margin-top: 12px;">
+                    <div class="detail-section-title">CONTACT THE CREATOR</div>
+                    <div id="detail-contacts" style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 6px;"></div>
                 </div>
             </div>
 
@@ -871,7 +952,7 @@
                 <div class="detail-section-title" style="margin-bottom: 15px;">BÌNH LUẬN</div>
                 
                 <div style="margin-bottom: 20px;">
-                    <input type="text" id="commentAuthorInput" class="form-control" placeholder="Tên hiển thị..." style="margin-bottom: 8px;">
+                    <input type="text" id="commentAuthorInput" class="form-control" placeholder="Tên hiển thị..." style="margin-bottom: 8px; background: #edf2f7; cursor: not-allowed;" readonly title="Đổi tên ở mục Tài khoản trên trang chủ">
                     <textarea id="commentTextInput" class="form-control" placeholder="Viết bình luận..."></textarea>
                     <button class="btn-create-main" style="margin-top: 10px; padding: 10px 20px; font-size: 14px;" onclick="addComment(null)">Gửi bình luận</button>
                 </div>
@@ -891,6 +972,7 @@
         let allCharacters = [];
         let currentChar = null;
         let hashtagList = [];
+        let contactList = [];
         let selectedFile = null;
 
         function showToast(message, type = 'error') {
@@ -903,6 +985,7 @@
         }
 
         document.addEventListener("DOMContentLoaded", async () => {
+            checkUserIdentity();
             await loadCharacters();
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -914,10 +997,59 @@
 
             window.onclick = function(e) {
                 if (!e.target.matches('.key-menu-wrapper *')) {
-                    document.getElementById('keyMenuDropdown').style.display = 'none';
+                    const d1 = document.getElementById('keyMenuDropdown');
+                    const d2 = document.getElementById('userMenuDropdown');
+                    if (d1) d1.style.display = 'none';
+                    if (d2) d2.style.display = 'none';
                 }
             };
         });
+
+        // QUẢN LÝ DANH TÍNH TÀI KHOẢN
+        function checkUserIdentity() {
+            const name = localStorage.getItem('user_nickname');
+            if(!name) {
+                document.getElementById('welcomeModal').style.display = 'block';
+            } else {
+                updateUserUI(name);
+            }
+        }
+
+        function saveWelcomeName() {
+            const input = document.getElementById('welcomeNameInput').value.trim();
+            if(!input) {
+                showToast("Vui lòng nhập tên của bạn!");
+                return;
+            }
+            localStorage.setItem('user_nickname', input);
+            document.getElementById('welcomeModal').style.display = 'none';
+            updateUserUI(input);
+            showToast("Chào mừng " + input + " đến với Thế Giới Nhân Vật!", "success");
+        }
+
+        function updateUserUI(name) {
+            document.getElementById('headerUserName').innerText = name;
+            document.getElementById('userMenuName').innerText = name;
+            document.getElementById('commentAuthorInput').value = name;
+            document.getElementById('charAuthor').value = name;
+        }
+
+        function toggleUserMenu(e) {
+            e.stopPropagation();
+            const dropdown = document.getElementById('userMenuDropdown');
+            dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+        }
+
+        function editUserName() {
+            document.getElementById('userMenuDropdown').style.display = 'none';
+            const oldName = localStorage.getItem('user_nickname') || '';
+            const newName = prompt("Nhập Tên hiển thị mới của bạn:", oldName);
+            if(newName && newName.trim()) {
+                localStorage.setItem('user_nickname', newName.trim());
+                updateUserUI(newName.trim());
+                showToast("Đã cập nhật tên hiển thị!", "success");
+            }
+        }
 
         async function loadCharacters() {
             const grid = document.getElementById('character-grid');
@@ -1006,6 +1138,71 @@
             renderCharacterCards(filtered);
         }
 
+        // QUẢN LÝ CONTACT BUILDER
+        function handlePlatformChange() {
+            const platform = document.getElementById('contactPlatformSelect').value;
+            const customNameInput = document.getElementById('contactCustomNameInput');
+            if(platform === 'other') {
+                customNameInput.style.display = 'block';
+            } else {
+                customNameInput.style.display = 'none';
+            }
+        }
+
+        function addContact() {
+            const platformSelect = document.getElementById('contactPlatformSelect');
+            const platform = platformSelect.value;
+            const urlInput = document.getElementById('contactUrlInput');
+            const url = urlInput.value.trim();
+            const customNameInput = document.getElementById('contactCustomNameInput');
+            const customName = customNameInput.value.trim();
+
+            if(!url) {
+                showToast("Vui lòng để lại thông tin liên lạc!");
+                return;
+            }
+
+            let label = platformSelect.options[platformSelect.selectedIndex].text;
+            if(platform === 'other') {
+                if(!customName) {
+                    showToast("Vui lòng nhập Tên link!");
+                    return;
+                }
+                label = customName;
+            }
+
+            contactList.push({ platform, url, label });
+            renderContactChips();
+
+            urlInput.value = '';
+            customNameInput.value = '';
+        }
+
+        function removeContact(index) {
+            contactList.splice(index, 1);
+            renderContactChips();
+        }
+
+        function renderContactChips() {
+            const wrapper = document.getElementById('contactChipsWrapper');
+            wrapper.innerHTML = contactList.map((item, index) => `
+                <div class="tag-chip-edit">
+                    ${getPlatformIcon(item.platform)} ${item.label} <span onclick="removeContact(${index})">&times;</span>
+                </div>
+            `).join('');
+        }
+
+        function getPlatformIcon(platform) {
+            switch(platform) {
+                case 'facebook': return '🔵';
+                case 'twitter': return '🐦';
+                case 'discord': return '👾';
+                case 'tiktok': return '🎵';
+                case 'website': return '🌐';
+                default: return '🔗';
+            }
+        }
+
         function addHashtag() {
             const input = document.getElementById('hashtagInput');
             let val = input.value.trim();
@@ -1049,13 +1246,23 @@
         }
 
         function openCreateModal() {
+            const savedName = localStorage.getItem('user_nickname');
+            if(!savedName) {
+                checkUserIdentity();
+                return;
+            }
+
             document.getElementById('formTitle').innerText = "Tạo Nhân Vật Mới";
             document.getElementById('characterForm').reset();
             document.getElementById('editCharId').value = "";
+            document.getElementById('charAuthor').value = savedName;
             document.getElementById('avatarPreviewImg').style.display = 'none';
             document.getElementById('avatarPreviewPlaceholder').style.display = 'block';
+
             hashtagList = [];
+            contactList = [];
             renderHashtagChips();
+            renderContactChips();
             selectedFile = null;
             document.getElementById('createModal').style.display = 'block';
         }
@@ -1067,6 +1274,18 @@
         async function submitCharacter(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
+
+            // BẮT BUỘC TỐI THIỂU 1 CONTACT
+            if(contactList.length === 0) {
+                showToast("Vui lòng thêm ít nhất 1 thông tin liên lạc Creator!");
+                return;
+            }
+
+            if(hashtagList.length === 0) {
+                showToast("Vui lòng thêm ít nhất 1 Hashtag!");
+                return;
+            }
+
             btn.innerText = "ĐANG XỬ LÝ...";
             btn.disabled = true;
 
@@ -1088,13 +1307,6 @@
                     return;
                 }
 
-                if(hashtagList.length === 0) {
-                    showToast("Vui lòng thêm ít nhất 1 Hashtag!");
-                    btn.innerText = "ĐĂNG TẢI";
-                    btn.disabled = false;
-                    return;
-                }
-
                 const charData = {
                     avatar_url: avatarUrl,
                     name: document.getElementById('charName').value,
@@ -1103,6 +1315,7 @@
                     slogan: document.getElementById('charSlogan').value,
                     author: document.getElementById('charAuthor').value,
                     note: document.getElementById('charNote').value,
+                    contacts: JSON.stringify(contactList),
                     hashtags: hashtagList.join(', '),
                     plot: document.getElementById('charPlot').value,
                     introduce: document.getElementById('charIntro').value,
@@ -1140,6 +1353,27 @@
             document.getElementById('detail-likes').innerText = char.likes || 0;
             document.getElementById('detail-shares').innerText = char.shares || 0;
             document.getElementById('detail-author').innerText = char.author;
+
+            // Render Contacts ở Card thứ 2
+            const contactContainer = document.getElementById('detail-contacts');
+            contactContainer.innerHTML = '';
+            let parsedContacts = [];
+            try {
+                if(char.contacts) parsedContacts = JSON.parse(char.contacts);
+            } catch(e) {}
+
+            if(parsedContacts.length > 0) {
+                parsedContacts.forEach(c => {
+                    const badge = document.createElement('a');
+                    badge.className = 'contact-badge';
+                    badge.href = c.url;
+                    badge.target = '_blank';
+                    badge.innerHTML = `${getPlatformIcon(c.platform)} ${c.label}`;
+                    contactContainer.appendChild(badge);
+                });
+            } else {
+                contactContainer.innerHTML = '<span style="font-size: 13px; color: var(--text-muted);">Không có thông tin liên lạc</span>';
+            }
 
             const tagContainer = document.getElementById('detail-hashtags');
             const tagsArr = char.hashtags ? char.hashtags.split(',').filter(t => t.trim()) : [];
@@ -1279,6 +1513,13 @@
             hashtagList = currentChar.hashtags ? currentChar.hashtags.split(',').map(t => t.trim()) : [];
             renderHashtagChips();
 
+            try {
+                contactList = currentChar.contacts ? JSON.parse(currentChar.contacts) : [];
+            } catch(e) {
+                contactList = [];
+            }
+            renderContactChips();
+
             closeDetailModal();
             document.getElementById('createModal').style.display = 'block';
         }
@@ -1344,6 +1585,12 @@
         }
 
         function showReplyForm(targetId, parentCommentId, mentionName) {
+            const savedName = localStorage.getItem('user_nickname');
+            if(!savedName) {
+                checkUserIdentity();
+                return;
+            }
+
             mentionName = mentionName || '';
             const formContainer = document.getElementById('replyForm-' + targetId);
             if(!formContainer) return;
@@ -1357,7 +1604,7 @@
 
             formContainer.innerHTML = `
                 <div style="margin-top: 10px; padding: 10px; background: var(--card-pink); border-radius: 8px;">
-                    <input type="text" id="replyAuthor-${targetId}" class="form-control" placeholder="Tên hiển thị..." style="margin-bottom: 6px;">
+                    <input type="text" id="replyAuthor-${targetId}" class="form-control" value="${savedName}" readonly style="margin-bottom: 6px; background: #edf2f7; cursor: not-allowed;">
                     <textarea id="replyText-${targetId}" class="form-control" placeholder="Viết câu trả lời...">${initialText}</textarea>
                     <div style="display:flex; gap:8px; margin-top: 8px;">
                         <button class="btn-create-main" style="padding: 6px 14px; font-size: 12px;" onclick="addComment('${targetId}', '${parentCommentId}')">Gửi trả lời</button>
@@ -1370,21 +1617,24 @@
         async function addComment(targetId, parentCommentId) {
             if(!currentChar) return;
 
-            let author = "", text = "";
+            const savedName = localStorage.getItem('user_nickname');
+            if(!savedName) {
+                checkUserIdentity();
+                return;
+            }
+
+            let author = savedName, text = "";
             const isReply = targetId !== null && targetId !== undefined;
 
             if (isReply) {
-                const authorEl = document.getElementById('replyAuthor-' + targetId);
                 const textEl = document.getElementById('replyText-' + targetId);
-                if (authorEl) author = authorEl.value;
                 if (textEl) text = textEl.value;
             } else {
-                author = document.getElementById('commentAuthorInput').value;
                 text = document.getElementById('commentTextInput').value;
             }
 
-            if(!author.trim() || !text.trim()) {
-                showToast("Vui lòng nhập đầy đủ Tên và Nội dung bình luận!");
+            if(!text.trim()) {
+                showToast("Vui lòng nhập nội dung bình luận!");
                 return;
             }
 
@@ -1400,7 +1650,6 @@
             showToast("Đăng bình luận thành công!", "success");
 
             if(!isReply) {
-                document.getElementById('commentAuthorInput').value = "";
                 document.getElementById('commentTextInput').value = "";
             }
 
