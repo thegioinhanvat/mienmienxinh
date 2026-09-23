@@ -97,7 +97,7 @@
         /* --- HEADER & SEARCH --- */
         header {
             background-color: white;
-            padding: 25px 20px;
+            padding: 22px 20px;
             text-align: center;
             border-bottom: 2px solid var(--light-pink);
             box-shadow: 0 2px 10px rgba(0,0,0,0.03);
@@ -109,12 +109,39 @@
             font-size: 26px;
             margin-bottom: 15px;
             font-weight: 800;
+            padding: 0 40px; /* Tránh chạm icon ở góc */
         }
 
         .user-profile-bar {
             position: absolute;
-            top: 20px;
+            top: 18px;
             right: 20px;
+        }
+
+        /* ICON GOOGLE-STYLE TỰ ĐỘNG CHỮ CÁI ĐẦU TIÊN */
+        .user-avatar-btn {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background-color: var(--card-pink);
+            border: 2px solid var(--border-pink);
+            color: var(--dark-pink);
+            font-weight: 800;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 3px 10px rgba(255, 143, 163, 0.25);
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            user-select: none;
+        }
+
+        .user-avatar-btn:hover {
+            transform: scale(1.08);
+            background-color: var(--light-pink);
+            border-color: var(--primary-pink);
         }
 
         .search-container {
@@ -691,7 +718,7 @@
             color: var(--dark-pink);
         }
 
-        /* --- STYLES MỚI CHO TRANG PROFILE TÀI KHOẢN & MODAL NỔI --- */
+        /* --- STYLES CHO TRANG PROFILE TÀI KHOẢN & MODAL NỔI --- */
         .profile-tab-bar {
             display: flex;
             justify-content: center;
@@ -742,6 +769,23 @@
             text-align: center;
             box-shadow: 0 10px 30px rgba(255, 143, 163, 0.3);
             animation: fadeInDown 0.25s ease;
+        }
+
+        /* RESPONSIVE TRÊN ĐIỆN THOẠI */
+        @media (max-width: 600px) {
+            h1 {
+                font-size: 20px;
+                padding-right: 35px; /* Giữ khoảng cách không bị avatar chèn */
+            }
+            .user-profile-bar {
+                top: 16px;
+                right: 15px;
+            }
+            .user-avatar-btn {
+                width: 38px;
+                height: 38px;
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -796,11 +840,9 @@
 
     <!-- HEADER & TRANG CHỦ -->
     <header>
-        <!-- Tên Tài Khoản Góc Phải Trang Chủ (Chỉ hiện tên, không hiện icon) -->
+        <!-- Icon Avatar Tròn Kiểu Google Ở Góc Phải Trang Chủ -->
         <div class="user-profile-bar">
-            <button class="btn-icon-only" onclick="openProfileModal()" style="background: var(--card-pink); border: 1px solid var(--border-pink); padding: 8px 18px; border-radius: 25px;">
-                <span id="headerUserName" style="font-size: 13px; font-weight: 700; color: var(--dark-pink);">Tài khoản</span>
-            </button>
+            <button class="user-avatar-btn" id="headerUserAvatar" onclick="openProfileModal()" title="Trang cá nhân">T</button>
         </div>
 
         <h1>Thế Giới Nhân Vật</h1>
@@ -830,7 +872,7 @@
         </div>
 
         <div class="fullscreen-body" style="max-width: 1000px;">
-            <!-- Phần Header Hồ Sơ (Không hiển thị icon avatar nữa) -->
+            <!-- Phần Header Hồ Sơ -->
             <div class="detail-card" style="text-align: center; background: white; padding: 25px 20px;">
                 <h2 id="profileUserName" style="font-size: 24px; font-weight: 800; color: var(--dark-pink); margin-bottom: 12px;">Tên Người Dùng</h2>
                 <button class="btn-text-action" style="margin: 0 auto; background: var(--card-pink); border: 1px solid var(--border-pink); padding: 8px 20px; border-radius: 20px; color: var(--dark-pink); font-size: 13px;" onclick="editUserName()">
@@ -968,7 +1010,6 @@
             <button class="close-fullscreen-btn" onclick="closeDetailModal()">&times;</button>
             
             <div class="key-menu-wrapper">
-                <!-- Đã đổi icon chìa khóa thành icon ba chấm (⋮) -->
                 <button class="btn-icon-only" onclick="toggleKeyMenu(event)" style="font-size: 24px; font-weight: bold; color: var(--dark-pink); width: 36px; height: 36px;">⋮</button>
                 <div class="key-menu-dropdown" id="keyMenuDropdown">
                     <div class="key-menu-item" onclick="promptEditModal()">✏️ Chỉnh sửa</div>
@@ -1133,7 +1174,9 @@
         }
 
         function updateUserUI(name) {
-            document.getElementById('headerUserName').innerText = name;
+            // Lấy chữ cái đầu tiên viết hoa cho Icon Avatar kiểu Google
+            const firstLetter = name ? name.trim().charAt(0).toUpperCase() : 'U';
+            document.getElementById('headerUserAvatar').innerText = firstLetter;
             document.getElementById('profileUserName').innerText = name;
             document.getElementById('commentAuthorInput').value = name;
             document.getElementById('charAuthor').value = name;
@@ -1400,7 +1443,7 @@
             const customName = customNameInput.value.trim();
 
             if(!url) {
-                showToast("Vui lòng nhập thông tin liên lạc!");
+                showToast("Vui lòng nhập đường link liên lạc!");
                 return;
             }
 
@@ -1518,7 +1561,7 @@
             const btn = document.getElementById('submitBtn');
 
             if(contactList.length === 0) {
-                showToast("Vui lòng thêm ít nhất 1 thông tin liên lạc!");
+                showToast("Vui lòng thêm ít nhất 1 thông tin liên lạc Creator!");
                 return;
             }
 
