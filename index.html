@@ -109,7 +109,7 @@
             font-size: 26px;
             margin-bottom: 15px;
             font-weight: 800;
-            padding: 0 40px; /* Tránh chạm icon ở góc */
+            padding: 0 40px;
         }
 
         .user-profile-bar {
@@ -118,7 +118,6 @@
             right: 20px;
         }
 
-        /* ICON GOOGLE-STYLE TỰ ĐỘNG CHỮ CÁI ĐẦU TIÊN */
         .user-avatar-btn {
             width: 42px;
             height: 42px;
@@ -775,7 +774,7 @@
         @media (max-width: 600px) {
             h1 {
                 font-size: 20px;
-                padding-right: 35px; /* Giữ khoảng cách không bị avatar chèn */
+                padding-right: 35px;
             }
             .user-profile-bar {
                 top: 16px;
@@ -1123,6 +1122,17 @@
         let passkeyAction = null; // 'edit' hoặc 'delete'
         let currentProfileTab = 'liked';
 
+        // HÀM CHUYỂN TÊN TIẾNG VIỆT SANG CHỮ CÁI ĐẦU BẢNG ANH (A-Z)
+        function getEnglishInitial(str) {
+            if (!str) return 'U';
+            let normalized = str.trim()
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .replace(/đ/g, "d")
+                .replace(/Đ/g, "D");
+            return normalized.charAt(0).toUpperCase() || 'U';
+        }
+
         function showToast(message, type = 'error') {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
@@ -1174,8 +1184,7 @@
         }
 
         function updateUserUI(name) {
-            // Lấy chữ cái đầu tiên viết hoa cho Icon Avatar kiểu Google
-            const firstLetter = name ? name.trim().charAt(0).toUpperCase() : 'U';
+            const firstLetter = getEnglishInitial(name);
             document.getElementById('headerUserAvatar').innerText = firstLetter;
             document.getElementById('profileUserName').innerText = name;
             document.getElementById('commentAuthorInput').value = name;
@@ -1443,14 +1452,14 @@
             const customName = customNameInput.value.trim();
 
             if(!url) {
-                showToast("Vui lòng để lại thông tin liên lạc!");
+                showToast("Tình yêu để lại thông tin liên lạc nha!");
                 return;
             }
 
             let label = platformSelect.options[platformSelect.selectedIndex].text;
             if(platform === 'other') {
                 if(!customName) {
-                    showToast("Vui lòng nhập Tên link!");
+                    showToast("Nhập Tên link nào!");
                     return;
                 }
                 label = customName;
@@ -1545,7 +1554,15 @@
             document.getElementById('avatarPreviewPlaceholder').style.display = 'block';
 
             hashtagList = [];
-            contactList = [];
+            
+            // TỰ ĐỘNG NẠP THÔNG TIN LIÊN LẠC ĐÃ LƯU TỪ LẦN TRƯỚC (NẾU CÓ)
+            const savedContacts = localStorage.getItem('user_contacts');
+            try {
+                contactList = savedContacts ? JSON.parse(savedContacts) : [];
+            } catch(e) {
+                contactList = [];
+            }
+
             renderHashtagChips();
             renderContactChips();
             selectedFile = null;
@@ -1574,6 +1591,9 @@
             btn.disabled = true;
 
             try {
+                // TỰ ĐỘNG LƯU LẠI THÔNG TIN LIÊN LẠC VÀO LỚP BỘ NHỚ LOCALSTORAGE
+                localStorage.setItem('user_contacts', JSON.stringify(contactList));
+
                 const editId = document.getElementById('editCharId').value;
                 let avatarUrl = currentChar && editId ? currentChar.avatar_url : "";
 
